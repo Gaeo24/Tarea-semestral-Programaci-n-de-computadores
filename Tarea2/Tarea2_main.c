@@ -1,8 +1,9 @@
+//gcc -o juego.exe Tarea2_main.c map.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include "map.h"
-//gcc -o juego.exe Tarea2_main.c map.c
+
 int puntos_j1=0, puntos_j2=0;
 int **map=NULL;
 Posicion *pos_j=NULL;
@@ -168,7 +169,7 @@ int main(){
     printmap();
 
     while (turno<=300) {
-        printf("Turno N°%d del jugador 1\n", turno);
+        printf("Turno Nro %d del jugador 1\n", turno);
         scanf(" %c", &input); //(w/a/s/d) para moverse (u/h/j/k) para disparar
         input=tolower(input);
         validacion_input(&input);
@@ -182,7 +183,7 @@ int main(){
             break;
         }
 
-        printf("Turno N°%d del jugador 2\n", turno);
+        printf("Turno Nro %d del jugador 2\n", turno);
         scanf(" %c", &input); //(w/a/s/d) para moverse (u/h/j/k) para disparar
         input=tolower(input);
         validacion_input(&input);
@@ -211,4 +212,5 @@ int main(){
     }
     liberar_mapa();
     return 0;
+
 }
