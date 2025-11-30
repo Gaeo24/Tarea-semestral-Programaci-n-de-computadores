@@ -37,30 +37,27 @@ int visual_cargar_assets(Visual *v){
     char *base_path = SDL_GetBasePath();
     char fullpath[512];
 
-    // Ladrillo
-    sprintf(fullpath, "%s../assets/tiles/IndustrialTile_46.png", base_path);
+    
+    sprintf(fullpath, "%sassets/tiles/IndustrialTile_46.png", base_path);
     v->tex_brick = load_texture(v->ren, fullpath);
 
-    // Metal
-    sprintf(fullpath, "%s../assets/tiles/IndustrialTile_65.png", base_path);
+
+    sprintf(fullpath, "%sassets/tiles/IndustrialTile_65.png", base_path);
     v->tex_metal = load_texture(v->ren, fullpath);
 
-    // Tanque azul
-    sprintf(fullpath, "%s../assets/tanques/tank_blue.png", base_path);
+    
+    sprintf(fullpath, "%sassets/tanques/tank_blue.png", base_path);
     v->tex_tank_blue = load_texture(v->ren, fullpath);
 
-    // Tanque rojo
-    sprintf(fullpath, "%s../assets/tanques/tank_red.png", base_path);
+    
+    sprintf(fullpath, "%sassets/tanques/tank_red.png", base_path);
     v->tex_tank_red = load_texture(v->ren, fullpath);
 
-    // ------------------------------------------------
-    // CARGAR LOS 64 FRAMES DE EXPLOSIÓN INDIVIDUALES
-    // ------------------------------------------------
     v->expl_frames_total = 0;
 
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 11; i++) {
 
-        sprintf(fullpath, "%s../assets/explosiones/frame%04d.png", base_path, i);
+        sprintf(fullpath, "%sassets/explosion/frame%04d.png", base_path, i);
 
         SDL_Texture *tmp = load_texture(v->ren, fullpath);
 
@@ -86,7 +83,7 @@ void visual_cerrar(Visual *v){
     SDL_DestroyTexture(v->tex_tank_blue);
     SDL_DestroyTexture(v->tex_tank_red);
 
-    // Destruir frames de explosión
+    
     for (int i = 0; i < v->expl_frames_total; i++)
         SDL_DestroyTexture(v->tex_expl_frames[i]);
 
@@ -97,11 +94,13 @@ void visual_cerrar(Visual *v){
     SDL_Quit();
 }
 
+
 void visual_render(Map *m, Visual *v, int tile_size,
                    int expl1_frame,
                    int expl2_frame,
                    int tank1_x, int tank1_y, int tank1_angle,
-                   int tank2_x, int tank2_y, int tank2_angle)
+                   int tank2_x, int tank2_y, int tank2_angle,
+                   bala *bala1, bala *bala2)
 {
     SDL_Renderer *ren = v->ren;
 
@@ -110,7 +109,7 @@ void visual_render(Map *m, Visual *v, int tile_size,
 
     SDL_Rect dst;
 
-    // Dibujar tiles
+    
     for(int y=0; y<m->h; y++){
         for(int x=0; x<m->w; x++){
 
@@ -126,7 +125,7 @@ void visual_render(Map *m, Visual *v, int tile_size,
         }
     }
 
-    // Dibujar tanques
+    
     SDL_Rect t1dst = { tank1_x * tile_size, tank1_y * tile_size, tile_size, tile_size };
     SDL_RenderCopyEx(ren, v->tex_tank_blue, NULL, &t1dst,
                  tank1_angle, NULL, SDL_FLIP_NONE);
@@ -134,32 +133,45 @@ void visual_render(Map *m, Visual *v, int tile_size,
     SDL_Rect t2dst = { tank2_x * tile_size, tank2_y * tile_size, tile_size, tile_size };
     SDL_RenderCopyEx(ren, v->tex_tank_red, NULL, &t2dst,
                  tank2_angle, NULL, SDL_FLIP_NONE);
+                 
+    if (bala1->activa) {
+        
+        SDL_Rect b1dst = { bala1->x * tile_size, bala1->y * tile_size, tile_size, tile_size };
+        
+        SDL_RenderCopy(ren, v->tex_expl_frames[0], NULL, &b1dst);
+    }
 
-    // -------------------------
-    // EXPLOSIÓN 1
-    // -------------------------
+    
+    if (bala2->activa) {
+        
+        SDL_Rect b2dst = { bala2->x * tile_size, bala2->y * tile_size, tile_size, tile_size };
+        
+        SDL_RenderCopy(ren, v->tex_expl_frames[0], NULL, &b2dst);
+    }
+
+   
     if (expl1_frame >= 0 && expl1_frame < v->expl_frames_total) {
 
         SDL_Rect ddst = {
-            t1dst.x - tile_size/2,
-            t1dst.y - tile_size/2,
-            tile_size * 2,
-            tile_size * 2
+            
+            bala1->expl_x * tile_size,
+            bala1->expl_y * tile_size,
+            tile_size ,
+            tile_size
         };
 
         SDL_RenderCopy(ren, v->tex_expl_frames[expl1_frame], NULL, &ddst);
     }
 
-    // -------------------------
-    // EXPLOSIÓN 2
-    // -------------------------
+
     if (expl2_frame >= 0 && expl2_frame < v->expl_frames_total) {
 
         SDL_Rect ddst = {
-            t2dst.x - tile_size/2,
-            t2dst.y - tile_size/2,
-            tile_size * 2,
-            tile_size * 2
+            
+            bala2->expl_x * tile_size,
+            bala2->expl_y * tile_size,
+            tile_size,
+            tile_size
         };
 
         SDL_RenderCopy(ren, v->tex_expl_frames[expl2_frame], NULL, &ddst);
